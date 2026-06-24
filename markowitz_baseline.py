@@ -1,19 +1,3 @@
-"""
-markowitz_baseline.py
-
-Classical continuous-weight mean-variance (Markowitz) portfolio optimization,
-solved via convex quadratic programming (cvxpy). Produces:
-  - the efficient frontier (risk vs return, long-only, fully invested)
-  - the maximum-Sharpe-ratio portfolio
-  - the minimum-variance portfolio
-
-This is the continuous-weight reference solution. It answers a DIFFERENT
-question than the QAOA/QUBO side of this project: "what fraction of capital
-to allocate to each of the 11 assets" rather than "which B of 11 assets to
-hold." The two are compared later only as two valid lenses on the same
-underlying mu/Sigma, not as competing solutions to the same problem.
-"""
-
 import numpy as np
 import cvxpy as cp
 
@@ -49,11 +33,6 @@ def solve_target_return(mu, sigma, target_return, long_only=True):
 
 
 def compute_efficient_frontier(mu, sigma, n_points=50, long_only=True):
-    """
-    Sweep target returns between the min-variance portfolio's return and the
-    max-return single-asset return, solving for minimum variance at each.
-    Returns arrays of (returns, risks, weights_list).
-    """
     min_var_w, _ = solve_min_variance(sigma, long_only)
     min_var_return = mu @ min_var_w
 
@@ -77,12 +56,6 @@ def compute_efficient_frontier(mu, sigma, n_points=50, long_only=True):
 
 
 def solve_max_sharpe(mu, sigma, risk_free_rate=0.0, long_only=True):
-    """
-    Maximum Sharpe ratio portfolio via the standard convex reformulation
-    (Cornuejols & Tutuncu): minimize w^T Sigma w subject to
-    (mu - rf)^T w = 1, w >= 0, then renormalize by sum(w).
-    Requires at least one asset with mu > risk_free_rate.
-    """
     n = sigma.shape[0]
     excess = mu - risk_free_rate
     y = cp.Variable(n)
