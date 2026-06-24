@@ -1,0 +1,87 @@
+{
+  "3": {
+    "optimal_bitstring": "10100000100",
+    "optimal_tickers": [
+      "XLF",
+      "XLK",
+      "GLD"
+    ],
+    "optimal_sharpe": 1.56378549927641,
+    "lambda": 2.305063401077919,
+    "sa_matches_optimal": true,
+    "qaoa_matches_optimal": true,
+    "qaoa_energy_gap": 0.0,
+    "qaoa_mean_feasible_frac": 0.226953125,
+    "qaoa_circuit_depth": 35
+  },
+  "4": {
+    "optimal_bitstring": "10100001100",
+    "optimal_tickers": [
+      "XLF",
+      "XLK",
+      "XLU",
+      "GLD"
+    ],
+    "optimal_sharpe": 1.5837316954404792,
+    "lambda": 3.073417868103892,
+    "sa_matches_optimal": true,
+    "qaoa_matches_optimal": true,
+    "qaoa_energy_gap": 0.0,
+    "qaoa_mean_feasible_frac": 0.3048828125,
+    "qaoa_circuit_depth": 35
+  },
+  "5": {
+    "optimal_bitstring": "10101001100",
+    "optimal_tickers": [
+      "XLF",
+      "XLK",
+      "XLI",
+      "XLU",
+      "GLD"
+    ],
+    "optimal_sharpe": 1.547638943298692,
+    "lambda": 3.841772335129865,
+    "sa_matches_optimal": true,
+    "qaoa_matches_optimal": true,
+    "qaoa_energy_gap": 0.0,
+    "qaoa_mean_feasible_frac": 0.615185546875,
+    "qaoa_circuit_depth": 35
+  },
+  "6": {
+    "optimal_bitstring": "10101011100",
+    "optimal_tickers": [
+      "XLF",
+      "XLK",
+      "XLI",
+      "XLP",
+      "XLU",
+      "GLD"
+    ],
+    "optimal_sharpe": 1.5278549844533533,
+    "lambda": 4.610126802155838,
+    "sa_matches_optimal": true,
+    "qaoa_matches_optimal": true,
+    "qaoa_energy_gap": 0.0,
+    "qaoa_mean_feasible_frac": 0.440771484375,
+    "qaoa_circuit_depth": 35
+  },
+  "7": {
+    "optimal_bitstring": "11101011100",
+    "optimal_tickers": [
+      "XLF",
+      "XLE",
+      "XLK",
+      "XLI",
+      "XLP",
+      "XLU",
+      "GLD"
+    ],
+    "optimal_sharpe": 1.4864240289112365,
+    "lambda": 5.378481269181811,
+    "sa_matches_optimal": true,
+    "qaoa_matches_optimal": true,
+    "qaoa_energy_gap": 0.0,
+    "qaoa_mean_feasible_frac": 0.276513671875,
+    "qaoa_circuit_depth": 35
+  }
+}
