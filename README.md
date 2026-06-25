@@ -1,11 +1,11 @@
 # Quantum vs. Classical Portfolio Optimization
 
-A side-by-side study of two genuinely different portfolio optimization problems on the same 11-asset ETF universe:
+A side-by-side study of two different portfolio optimization problems on the same 11-asset ETF universe:
 
 1. **Classical continuous Markowitz mean-variance optimization** — solved exactly via convex quadratic programming.
 2. **Discrete "select B of N assets" combinatorial optimization** — formulated as a QUBO, mapped to an Ising Hamiltonian, and solved with the Quantum Approximate Optimization Algorithm (QAOA) on a Qiskit simulator, benchmarked against exact brute-force enumeration and classical simulated annealing.
 
-**The core claim of this project is deliberately modest:** QAOA is not a "speedup" of Markowitz. It solves a different problem — discrete subset selection rather than continuous capital allocation — for which it is a legitimate (if NISQ-constrained) candidate algorithm. This repo reports how well it does at that, honestly, including where it struggles.
+**The core claim of this project is deliberately modest:** QAOA is not a "speedup" of Markowitz. It solves a different problem: discrete subset selection rather than continuous capital allocation, for which it is a more appropriate candidate algorithm. This repo reports how well it does at that and its flaws.
 
 ## Asset universe
 
@@ -67,14 +67,12 @@ The QUBO is then converted to an **Ising Hamiltonian** (qubit operator) via Qisk
 
 ### 4. Classical reference solvers (`classical_solvers.py`)
 
-- **Brute-force exact enumeration**: with N=11, there are only 2¹¹ = 2048 possible bitstrings — small enough to check every single one. This gives the **true global optimum** for every budget, which is the ground truth everything else is measured against.
+- **Brute-force exact enumeration**: with N=11, there are only 2¹¹ = 2048 possible bitstrings, small enough to check every single one. This gives the **true global optimum** for every budget, which is the baseline everything else is measured against.
 - **Classical simulated annealing**: a standard metaheuristic (multi-restart, geometric cooling, bit-flip neighborhood). At N=11 this is overkill since brute force already solves it exactly, but it establishes the benchmarking methodology that matters at larger N (30, 50, 100+ assets) where brute force stops being tractable and SA becomes the realistic classical competitor.
 
 ### 5. QAOA (`qaoa_solver.py`)
 
-A **from-scratch QAOA implementation** built directly on Qiskit's modern V2 primitives (`EstimatorV2`/`SamplerV2`) and `QAOAAnsatz`, rather than the legacy `qiskit_algorithms.QAOA` wrapper class.
-
-> **Implementation note:** `qiskit_algorithms.QAOA` expects the older V1 primitives interface and is incompatible with the V2-primitive versions of `qiskit`/`qiskit-aer` used in this repo — this is a real, documented ecosystem versioning friction point in current Qiskit, not a workaround chosen for convenience. Building QAOA manually also has a methodological upside: full transparency into the circuit and the classical optimization loop.
+A **from-scratch QAOA implementation** built directly on Qiskit's modern V2 primitives (`EstimatorV2`/`SamplerV2`) and `QAOAAnsatz`, rather than the legacy `qiskit_algorithms.QAOA` wrapper class
 
 The loop:
 1. Build a parameterized `QAOAAnsatz` circuit (p=2 layers/"reps") for the Ising Hamiltonian.
@@ -107,13 +105,12 @@ Multi-start matters: a single QAOA run can converge to a mediocre local optimum 
 
 *Sharpe = equal-weight Sharpe ratio of the brute-force optimal subset for that budget.
 
-**What this does and doesn't show:**
+**Takeaways:*
 
-- QAOA (p=2, COBYLA, 5 random restarts) reliably **located** the true combinatorial optimum at every budget tested on this 11-asset, fully-connected problem. That's a real result — not a foregone conclusion at this circuit depth.
-- It did **not** confidently concentrate probability on that optimum: even in the best run, the optimal bitstring's individual sampling probability was typically under 0.5%, and the *most frequently sampled* bitstring across the distribution was often a different (sometimes infeasible) one.
-- Feasible-shot fraction (fraction of all 4096 shots landing on *any* valid B-asset selection) varied from 22.7% to 61.5% with no clear pattern tied to B — a real, reportable nuance rather than a clean story.
-- A small side-experiment (not in the main driver script) found that increasing circuit depth (p=1 → 2 → 3) did **not** monotonically improve feasible-shot concentration at a fixed classical-optimizer iteration budget — suggesting the classical optimizer's iteration budget matters at least as much as circuit depth at this problem scale.
-- This is **simulator-only**. No real NISQ hardware noise is reflected in these numbers; that's a known, separate limitation (queue times and decoherence/gate-error effects on IBM Quantum's free tier were the planned stretch goal, not yet executed).
+- QAOA (p=2, COBYLA, 5 random restarts) reliably **located** the true combinatorial optimum at every budget tested on this 11-asset, fully-connected problem; however, it didn't confidentally concetrate probability on the optimum
+- Feasible-shot fraction (fraction of all 4096 shots landing on *any* valid B-asset selection) varied from 22.7% to 61.5% with no clear pattern tied to B.
+- A small side-experiment (not in the main driver script) found that increasing circuit depth (p=1 → 2 → 3) did **not** monotonically improve feasible-shot concentration at a fixed classical-optimizer iteration budget.
+- This is **simulator-only**. No real NISQ hardware noise is reflected in these numbers; that's a known, separate limitation.
 
 ## Known limitations (by design, not oversight)
 
