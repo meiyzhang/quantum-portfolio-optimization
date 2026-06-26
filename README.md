@@ -1,17 +1,17 @@
 # Quantum vs. Classical Portfolio Optimization
 
-A side-by-side study of two different portfolio optimization problems on the same 11-asset ETF universe:
+A side-by-side study of two different portfolio optimization problems on the same 11-asset ETF universe. We implement:
 
-1. **Classical continuous Markowitz mean-variance optimization** — solved exactly via convex quadratic programming.
-2. **Discrete "select B of N assets" combinatorial optimization** — formulated as a QUBO, mapped to an Ising Hamiltonian, and solved with the Quantum Approximate Optimization Algorithm (QAOA) on a Qiskit simulator, benchmarked against exact brute-force enumeration and classical simulated annealing.
+1. **Classical continuous Markowitz mean-variance optimization**, solved exactly via convex quadratic programming.
+2. **Discrete "select B of N assets" combinatorial optimization**, formulated as a QUBO, mapped to an Ising Hamiltonian, and solved with the Quantum Approximate Optimization Algorithm (QAOA) on a Qiskit simulator, benchmarked against exact brute-force enumeration and classical simulated annealing.
 
-**The core claim of this project is deliberately modest:** QAOA is not a "speedup" of Markowitz. It solves a different problem: discrete subset selection rather than continuous capital allocation, for which it is a more appropriate candidate algorithm. This repo reports how well it does at that and its flaws.
+We find that QAOA is not a "speedup" of Markowitz. It solves a different problem: discrete subset selection rather than continuous capital allocation, for which it is a more appropriate candidate algorithm. This repo reports how well it does at that and its flaws.
 
-## Asset universe
+## Assets selected:
 
 11 sector/asset-class ETFs: `XLF` (Financials), `XLE` (Energy), `XLK` (Technology), `XLV` (Healthcare), `XLI` (Industrials), `XLY` (Consumer Discretionary), `XLP` (Consumer Staples), `XLU` (Utilities), `GLD` (Gold), `TLT` (Long-Term Treasuries), `VNQ` (REITs).
 
-## Headline result
+## TL;DR
 
 Across every budget tested (B = 3, 4, 5, 6, 7 assets selected out of 11), **QAOA's best-of-5-multistart run found the exact global optimum**, matching both brute-force exact enumeration and classical simulated annealing. However, the probability of *sampling* that optimum on any single shot was low (typically well under 1%), and the fraction of all shots landing on any feasible (correct-cardinality) solution ranged from ~23% to ~62% across budgets with no clean trend. QAOA located the right answer; it did not concentrate confidently on it. See [Results](#results) below for the full breakdown.
 
@@ -93,26 +93,15 @@ For each budget B ∈ {3, 4, 5, 6, 7}, runs brute force, simulated annealing, an
 
 Multi-start matters: a single QAOA run can converge to a mediocre local optimum of the variational landscape; running several random initializations and keeping the best is standard practice and is what's reported here as "QAOA's" result, not a cherry-picked single seed.
 
-## Results
-
-| B | Optimal selection | Optimal Sharpe* | SA matches optimal? | QAOA matches optimal? | QAOA energy gap | QAOA feasible-shot % |
-|---|---|---|---|---|---|---|
-| 3 | XLF, XLK, GLD | 1.564 | ✅ | ✅ | 0.000 | 22.7% |
-| 4 | XLF, XLK, XLU, GLD | 1.584 | ✅ | ✅ | 0.000 | 30.5% |
-| 5 | XLF, XLK, XLI, XLU, GLD | 1.548 | ✅ | ✅ | 0.000 | 61.5% |
-| 6 | XLF, XLK, XLI, XLP, XLU, GLD | 1.528 | ✅ | ✅ | 0.000 | 44.1% |
-| 7 | XLF, XLE, XLK, XLI, XLP, XLU, GLD | 1.486 | ✅ | ✅ | 0.000 | 27.7% |
-
-*Sharpe = equal-weight Sharpe ratio of the brute-force optimal subset for that budget.
-
 **Takeaways:*
 
 - QAOA (p=2, COBYLA, 5 random restarts) reliably **located** the true combinatorial optimum at every budget tested on this 11-asset, fully-connected problem; however, it didn't confidentally concetrate probability on the optimum
 - Feasible-shot fraction (fraction of all 4096 shots landing on *any* valid B-asset selection) varied from 22.7% to 61.5% with no clear pattern tied to B.
 - A small side-experiment (not in the main driver script) found that increasing circuit depth (p=1 → 2 → 3) did **not** monotonically improve feasible-shot concentration at a fixed classical-optimizer iteration budget.
-- This is **simulator-only**. No real NISQ hardware noise is reflected in these numbers; that's a known, separate limitation.
 
-## Known limitations (by design, not oversight)
+Sidenote: This is **simulator-only**. No real NISQ hardware noise is reflected in these numbers, as that's a separate, but known limitation
+
+## Some limitations
 
 - **QUBO penalty tuning** is heuristic, empirically validated per-budget but not theoretically guaranteed to generalize to other λ scalings, risk-aversion parameters, or asset universes.
 - **Equal-weight assumption**: once a subset of B assets is selected, this analysis evaluates it at equal weights — it does not re-optimize continuous weights within the selected subset, which would be a natural (and more realistic) extension.
