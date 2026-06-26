@@ -13,7 +13,7 @@ We find that QAOA is not a "speedup" of Markowitz. It solves a different problem
 
 ## TL;DR
 
-Across every budget tested (B = 3, 4, 5, 6, 7 assets selected out of 11), **QAOA's best-of-5-multistart run found the exact global optimum**, matching both brute-force exact enumeration and classical simulated annealing. However, the probability of *sampling* that optimum on any single shot was low (typically well under 1%), and the fraction of all shots landing on any feasible (correct-cardinality) solution ranged from ~23% to ~62% across budgets with no clean trend. QAOA located the right answer; it did not concentrate confidently on it. See [Results](#results) below for the full breakdown.
+Across every budget tested (B = 3, 4, 5, 6, 7 assets selected out of 11), **QAOA's best-of-5-multistart run found the exact global optimum**, matching both brute-force exact enumeration and classical simulated annealing. However, the probability of *sampling* that optimum on any single shot was low (typically well under 1%), and the fraction of all shots landing on any feasible (correct-cardinality) solution ranged from ~23% to ~62% across budgets with no clean trend. QAOA located the right answer; it did not concentrate confidently on it. 
 
 ## Repository structure
 
@@ -37,7 +37,7 @@ Pulls 3 years of daily adjusted-close prices for all 11 ETFs via `yfinance`, com
 - **μ (mu)**: an 11-vector of annualized expected returns
 - **Σ (Sigma)**: an 11×11 annualized covariance matrix
 
-A rolling-window stability diagnostic is included to flag how much Σ shifts across sub-periods — a 3-year window is a reasonable middle ground between enough samples to estimate 55 free covariance parameters and not diluting the estimate with stale, regime-shifted data.
+A rolling-window stability diagnostic is included to flag how much Σ shifts across sub-periods; a 3-year window is a reasonable middle ground between enough samples to estimate 55 free covariance parameters and not diluting the estimate with stale, regime-shifted data.
 
 ### 2. Classical baseline (`markowitz_baseline.py`)
 
@@ -93,7 +93,7 @@ For each budget B ∈ {3, 4, 5, 6, 7}, runs brute force, simulated annealing, an
 
 Multi-start matters: a single QAOA run can converge to a mediocre local optimum of the variational landscape; running several random initializations and keeping the best is standard practice and is what's reported here as "QAOA's" result, not a cherry-picked single seed.
 
-**Takeaways:*
+*Takeaways:*
 
 - QAOA (p=2, COBYLA, 5 random restarts) reliably **located** the true combinatorial optimum at every budget tested on this 11-asset, fully-connected problem; however, it didn't confidentally concetrate probability on the optimum
 - Feasible-shot fraction (fraction of all 4096 shots landing on *any* valid B-asset selection) varied from 22.7% to 61.5% with no clear pattern tied to B.
@@ -101,7 +101,7 @@ Multi-start matters: a single QAOA run can converge to a mediocre local optimum 
 
 Sidenote: This is **simulator-only**. No real NISQ hardware noise is reflected in these numbers, as that's a separate, but known limitation
 
-## Some limitations
+## Some more limitations
 
 - **QUBO penalty tuning** is heuristic, empirically validated per-budget but not theoretically guaranteed to generalize to other λ scalings, risk-aversion parameters, or asset universes.
 - **Equal-weight assumption**: once a subset of B assets is selected, this analysis evaluates it at equal weights — it does not re-optimize continuous weights within the selected subset, which would be a natural (and more realistic) extension.
